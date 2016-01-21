@@ -1,0 +1,38 @@
+---
+title: "Tutorial deforistation monitoring Peru"
+author: "Rony Nedkov"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  knitrBootstrap::bootstrap_document:
+    title: "Tutorial deforistation monitoring Peru"
+    theme: cosmo
+    menu: FALSE
+---
+
+#Tutorial deforistation monitoring Peru
+
+## Introduction
+The bfastSpatial package provides utilities to performs change detection analysis (see DeVries et al. 2015; Dutrieux et al. 2015; J. Verbesselt et al. 2010; J. Verbesselt, Zeileis, and Herold 2012) on time-series of spatial gridded data, such as time-series of remote sensing images (Landsat, MODIS and the likes). The tools provided by bfastSpatial allows a user to perform all the steps of the change detection workflow, from pre-processing raw surface reflectance Landsat data, inventorying and preparing them for analysis to the production and formatting of change detection results. The present document aims at providing guidance to the users of bfastSpatial by detailing every steps of the process.
+
+##Downloading Landsat data from Earth Explorer/espa
+Working with Landsat time-series often involves downloading large amounts of data. The full Landsat archive for one path/row may very well exceed 500 scenes in some parts of the world. The most common way to access and filter the archiveis via the [Earth Explorer platform](http://earthexplorer.usgs.gov). You need to have an account before being able to request data to be pre-processed. Registration is free.
+
+After logging in at the Earth Explorer platform the first step is to define the search criteria by entering the path/row under the the path/row tab. Make sure to click on the **show** button to make sure only data will be selected that includes the chosen location.
+
+![define search criteria](figures/step_1_small.png)      
+
+The second step is to select the data sets you wish to order. For this tutorial we will use **Landsat Surface Reflectance - L8 OLI/TIRS** and **Landsat Surface Reflectance - L7 ETM+** from the **Landsat Archive**. 
+
+In step three you can select additional criteria depending on your needs. The criteria we are interested in is the cloud cover. Setting this to **less than 80%** will filter out imagery that are completely covered by clouds. 
+
+The final step is to export your results by clicking **export results** (see figure below) and choosing **csv** in the format drop down menu.
+
+![define search criteria](figures/export_results.png) 
+
+
+###Placing order at the Earth Explorer
+USGS is planning to support the delivery of data in different formats (HDF, GeoTiff, binary). GeoTiff is a common and easy to handle format of raster data and should be your preferred choice if you are working in Windows. A convenient way of placing an order at the moment is via espa (your username/password are your USGS credential, which you should already have requested to place your order on EarthExplorer). Once you have entered your credentials, you may use the interface to upload the list of scenes you want to have pre-processed, select the layers of interest and place your order. A scene list is a simple text file with a scene ID (eg: LT52302701999134) on each line.
+
+
+
+
