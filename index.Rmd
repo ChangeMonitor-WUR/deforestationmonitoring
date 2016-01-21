@@ -37,7 +37,7 @@ For this tutorial we will download scenes by specifying path and row numbers und
 
 The second step is to select the data sets you wish to order under the Data Sets tab. For this tutorial we will use **Landsat Surface Reflectance - L8 OLI/TIRS** and **Landsat Surface Reflectance - L7 ETM+** from the **Landsat Archive**.
 
-![define search criteria](figures/step_2.png)
+![define search criteria](figures/step_2.PNG)
 
 In step three you can select additional criteria depending on your needs. The criterium we are interested in is the cloud cover. Setting this to **less than 80%** will filter out imagery that are completely covered by clouds. 
 
