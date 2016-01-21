@@ -1,0 +1,82 @@
+---
+title: "Tutorial deforistation monitoring Peru"
+author: "Rony Nedkov"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  knitrBootstrap::bootstrap_document:
+    title: "Tutorial deforistation monitoring Peru"
+    theme: cosmo
+    menu: FALSE
+---
+
+#Tutorial deforistation monitoring Peru
+
+## Introduction
+The bfastSpatial package provides utilities to performs change detection analysis (see DeVries et al. 2015; Dutrieux et al. 2015; J. Verbesselt et al. 2010; J. Verbesselt, Zeileis, and Herold 2012) on time-series of spatial gridded data, such as time-series of remote sensing images (Landsat, MODIS and the likes). The tools provided by bfastSpatial allows a user to perform all the steps of the change detection workflow, from pre-processing raw surface reflectance Landsat data, inventorying and preparing them for analysis to the production and formatting of change detection results. The present document aims at providing guidance to the users of bfastSpatial by detailing every steps of the process. 
+
+The following steps need to be performed in the change detection workflow:
+
+1. Downloading remote sensing images
+2. Pre-processing the images
+3. Data invenctory
+4. Spatial BFASTMonitor
+
+##1. Downloading Landsat data from Earth Explorer/espa
+Working with Landsat time-series often involves downloading large amounts of data. The full Landsat archive for one path/row may very well exceed 500 scenes in some parts of the world. The data can be downloaden by uploading a list of scenes you want to have pre-processed via the [ESPA](https://espa.cr.usgs.gov/login/?next=/) website. A list can be obtained via [Earth Explorer platform](http://earthexplorer.usgs.gov) which is common way to access the archives. To export your search results you will need to create an account and log in.  
+
+
+After logging in on the Earth Explorer platform the first step is to define the search criteria. For this tutorial we will download scenes by specifying the path and row number under the Path/row tab. Click the **show** button after entering the desired path and row number. A marker will appear on the map and this will make sure only scenes are downloaden which contain the area of interest. 
+
+![define search criteria](figures/step_1_small.png)      
+
+The second step is to select the data sets you wish to order. For this tutorial we will use **Landsat Surface Reflectance - L8 OLI/TIRS** and **Landsat Surface Reflectance - L7 ETM+** from the **Landsat Archive**. 
+
+In step three you can select additional criteria depending on your needs. The criterium we are interested in is the cloud cover. Setting this to **less than 80%** will filter out imagery that are completely covered by clouds. 
+
+The final step is to export your results. In the **results** tab you can see a list of the scenes that have been found in the archive according to your search criteria. The meta-data of the scenes can be downloaded by clicking **export results** and specifying the output format. Choose **csv**. You will receive an email with a link where you can download the requested csv
+
+###Placing order at ESPA
+USGS is planning to support the delivery of data in different formats (HDF, GeoTiff, binary). GeoTiff is a common and easy to handle format of raster data and should be your preferred choice if you are working in Windows. To place an order you have to log in on [ESPA](https://espa.cr.usgs.gov/login/?next=/) (your username/password are your USGS credential, which you should already have requested to place your order on EarthExplorer). The interface requires a list of scene ID's (eg: LT52302701999134) in a text file as input. We will create this list with an R script that automatically reads the csv, retrieves the ID's and saves them to a text file to save time with future orders. 
+
+First we want to read the csv in R and retrieve the scene ID's. We will also create the file in which we can save our output. 
+
+```{r, eval=FALSE, results='hide'}
+#read csv file
+csv <- read.csv(file = "data/LSR_LANDSAT_8_96563.csv")
+
+#Retrieve scene ID's from csv
+sceneID <- as.character(csv$Landsat.Scene.Identifier)
+
+#Create a text file
+order_list <- file("output/orderlist.txt", "w")
+```
+
+
+We can now save each ID to a new line in the text file by looping through the scene ID's and writing them one by one to the file. Close the connection to the file at the end to save your output. 
+
+
+```{r, eval=FALSE, results='hide'}
+#Retrieve the ID's from csv and write them on a new line in the file
+for(i in 1:length(sceneID)) {
+  ID <- sceneID[i]
+  writeLines(ID, order_list, sep="\n")
+}
+#close connection to file
+close(order_list)
+
+```
+You can check the end result  of this script by opening your text file.
+
+Log in to the ESPA platform and go to the **order data** page. Here you can upload the text file with the list of scenes you want to have pre-processed, select the **Surface reflectance NDMI** layer and submit your order. You will receive an email with a confirmation of your order and a link to the status of the order. Once the processing is done you will receive another email with a download link. Processing requires some time: half an hour up to several hours depending on the size of your order.
+
+###Downloading the data
+Once you receive the e-mail from ESPA notifying you that your order has been pre-processed, you will be able to proceed to the download of the data. Because the amount of scenes is usually large, the use of a download manager is highly recommended. Two options:
+
+* The Bulk Download Application
+* The DownloadThemAll plugin of the firefox browser
+
+
+
+
+
+
