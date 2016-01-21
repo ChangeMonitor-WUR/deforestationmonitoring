@@ -9,7 +9,7 @@ output:
     menu: FALSE
 ---
 
-#Tutorial deforistation monidefine search criteriatoring Peru
+#Tutorial deforistation monitoring Peru
 
 ## Introduction
 The `bfastSpatial` package provides utilities to performs change detection analysis (see DeVries et al. 2015; Dutrieux et al. 2015; J. Verbesselt et al. 2010; J. Verbesselt, Zeileis, and Herold 2012) on time-series of spatial gridded data, such as time-series of remote sensing images (Landsat, MODIS and the likes). The tools provided by bfastSpatial allows a user to perform all the steps of the change detection workflow, from pre-processing raw surface reflectance Landsat data, inventorying and preparing them for analysis to the production and formatting of change detection results. The present document is an addition to the [bfast spatial tutorial](http://www.loicdutrieux.com/bfastSpatial/#Downloading_Landsat_data_from_Earth_Explorer_espa) in which the package will be used for deforistation monitoring based on Landsat scenes from Peru. 
