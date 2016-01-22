@@ -865,7 +865,7 @@
 <div id="header">
 <h1 class="title">Tutorial deforistation monitoring Peru</h1>
 <h2 class="author">Rony Nedkov</h2>
-<h3 class="date">21 January, 2016</h3>
+<h3 class="date">22 January, 2016</h3>
 </div>
 <title>
 Tutorial deforistation monitoring Peru
@@ -907,7 +907,7 @@ Tutorial deforistation monitoring Peru
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">#read csv file
-csv <- read.csv(file = "data/LSR_LANDSAT_8_96563.csv")
+csv <- read.csv(file = "data/LSR_LANDSAT_8_97722_PATH5_ROW68.csv")
 
 #Retrieve scene ID's from csv
 sceneID <- as.character(csv$Landsat.Scene.Identifier)
@@ -930,9 +930,40 @@ for(i in 1:length(sceneID)) {
 close(order_list)</code></pre>
 </div>
 <p>The <code>sep=&quot;\n&quot;</code> argument creates a new line after adding the ID to the text file. You can check the end result of this script by opening your text file.</p>
-<p>The final step requires Logging in to the <a href="https://espa.cr.usgs.gov/login/?next=/">ESPA platform</a>. Go to the <strong>order data</strong> page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the <strong>Surface reflectance NDMI</strong> and <strong>CFMask</strong> layers and submit your order. You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DOwnloadThemAll plugin for Firefox) to download all .tar.gz files.</p>
+<p>The final step requires Logging in to the <a href="https://espa.cr.usgs.gov/login/?next=/">ESPA platform</a>. Go to the <strong>order data</strong> page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:</p>
+<ul>
+<li>CFMask (Cloud mask)</li>
+<li>Surface reflectance NDMI</li>
+<li>Geotiff</li>
+</ul>
+<p>Now you can submit your order. You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the <code>data</code> folder and name it <code>path5_row68</code>.</p>
+When you have downloaded all files we can unpak them using the <code>untar</code> function. Make sure you set the <code>inputPath</code> to the actual location of the data you wish the unpack.
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">#set the path location to the data
+inputPath <- "data/path5_row68"
+
+#load Landsat tar files and untar these in the data folder 
+files <- list.files(inputPath, full.names = TRUE)
+
+for (file in files) {
+  untar(file, exdir = inputPath)
+}</code></pre>
+</div>
+<p>Now we are ready to start pre-processing the scenes for further analysis</p>
 <h2>2. Pre-processing the Peru scenes</h2>
-<p>To limit the processing time of the 'BfastSpatial' functions we will first crop all Landsat scenes we retrieved from ESPA to the extent of our area of interest. The extent of this area is the same extend as the forestMask</p>
+<p>To limit the processing time of the 'BfastSpatial' functions we will first crop all Landsat NDMI and CFMask scenes to the extent of our area of interest: the extent of the forestMask. So let's load our forest mask and the Landsat scenes</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">#Load forest mask and list ndmiRasters
+forestMask <- raster("data/forestmask/NFM_2001_2231.tif")
+rasterList <- lapply(list.files(inputData, pattern = "*.tif", full.names = TRUE), raster)</code></pre>
+</div>
+The <code>list.files()</code> method loads all files that end with the <code>.tif</code> extension (which are the NDMI scenes and the CFMasks) and puts them in a list. With the <code>lapply</code> method we can apply a function on every instance of the list. In our case we use the function <code>raster</code> to create rasterLayer objects of all listed files. This will allow us to perform raster operations such as the <code>crop</code> function.
 </div>
 </div>
 </div>

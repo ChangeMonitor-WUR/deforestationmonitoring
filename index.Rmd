@@ -48,9 +48,9 @@ ESPA requires a list of scene ID's(eg: LT52302701999134) in a text file as input
 
 First we want to read the csv in R and retrieve the scene ID's. We will also create the file in which we can save our output. 
 
-```{r, eval=FALSE, results='hide'}
+```{r, results='hide'}
 #read csv file
-csv <- read.csv(file = "data/LSR_LANDSAT_8_96563.csv")
+csv <- read.csv(file = "data/LSR_LANDSAT_8_97722_PATH5_ROW68.csv")
 
 #Retrieve scene ID's from csv
 sceneID <- as.character(csv$Landsat.Scene.Identifier)
@@ -77,9 +77,53 @@ close(order_list)
 ```
 The `sep="\n"` argument creates a new line after adding the ID to the text file. You can check the end result  of this script by opening your text file.
 
-The final step requires Logging in to the [ESPA platform](https://espa.cr.usgs.gov/login/?next=/). Go to the **order data** page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the **Surface reflectance NDMI** and **CFMask** layers and submit your order. You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DOwnloadThemAll plugin for Firefox) to download all .tar.gz files.
+The final step requires Logging in to the [ESPA platform](https://espa.cr.usgs.gov/login/?next=/). Go to the **order data** page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:
+
+* CFMask (Cloud mask)
+* Surface reflectance NDMI
+* Geotiff 
+
+Now you can submit your order. You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the `data` folder and name it `path5_row68`. 
+
+When you have downloaded all files we can unpak them using the `untar` function. Make sure you set the `inputPath` to the actual location of the data you wish the unpack.
+```{r, eval=FALSE, results='hide'}
+#set the path location to the data
+inputPath <- "data/path5_row68"
+
+#load Landsat tar files and untar these in the data folder 
+files <- list.files(inputPath, full.names = TRUE)
+
+for (file in files) {
+  untar(file, exdir = inputPath)
+}
+``` 
+
+Now we are ready to start pre-processing the scenes for further analysis
 
 ##2. Pre-processing the Peru scenes
-To limit the processing time of the 'BfastSpatial' functions we will first crop all Landsat scenes we retrieved from ESPA to the extent of our area of interest. The extent of this area is the same extend as the forestMask
+
+To limit the processing time of the 'BfastSpatial' functions we will first crop all Landsat NDMI and CFMask scenes to the extent of our area of interest: the extent of the forestMask. So let's load our forest mask and the Landsat scenes
+
+```{r, eval=FALSE, results='hide'}
+#Load forest mask and list Landsat scenes
+forestMask <- raster("data/forestmask/NFM_2001_2231.tif")
+rasterList <- list.files(inputPath, pattern = "*.tif", full.names = TRUE)
+
+```
+
+
+
+```{r, eval=FALSE, results='hide'}
+#crop all scenes to the extent of the mask and save to disk
+for (i in 1:length(rasterList)) {
+  r <- raster(rasterList[i])
+  cropped <- extend(crop(r, forestMask), forestMask)
+  
+  outfile <- sprintf("%s/%s_cropped", inputPath, names(cropped))
+  
+  writeRaster(cropped, filename = outfile, datatype = "INT2S", overwrite=TRUE, progress ="text")
+}
+
+```
 
 
