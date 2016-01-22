@@ -898,7 +898,7 @@ Tutorial deforistation monitoring Peru
 <p>The second step is to select the data sets you wish to order under the Data Sets tab. For this tutorial we will use <strong>Landsat Surface Reflectance - L8 OLI/TIRS</strong> and <strong>Landsat Surface Reflectance - L7 ETM+</strong> from the <strong>Landsat Archive</strong>.</p>
 <p><img src="figures/step_2.PNG" alt="define search criteria" /></p>
 <p>In step three you can select additional criteria depending on your needs. The criterium we are interested in is the cloud cover. Setting this to <strong>less than 80%</strong> will filter out imagery that are completely covered by clouds.</p>
-<p>The final step is to export your results. In the <strong>results</strong> tab you can see a list of the scenes that have been found in the archive according to your search criteria. The meta-data of the scenes can be downloaded by clicking <strong>export results</strong> and specifying the output format. Choose <strong>csv</strong>. You will receive an email with a link where you can download the requested csv</p>
+<p>The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The meta-data of the scenes can be downloaded by clicking export results and specifying the output format. Choose <strong>csv</strong>. You will receive an email with a link where you can download the requested csv</p>
 <h3>Placing order at ESPA</h3>
 <p>ESPA requires a list of scene ID's(eg: LT52302701999134) in a text file as input. We will create this list with an R script that automatically reads the csv, retrieves the ID's and saves them to a text file.</p>
 <p>First we want to read the csv in R and retrieve the scene ID's. We will also create the file in which we can save our output.</p>
@@ -930,14 +930,14 @@ for(i in 1:length(sceneID)) {
 close(order_list)</code></pre>
 </div>
 <p>The <code>sep=&quot;\n&quot;</code> argument creates a new line after adding the ID to the text file. You can check the end result of this script by opening your text file.</p>
-<p>The final step requires Logging in to the <a href="https://espa.cr.usgs.gov/login/?next=/">ESPA platform</a>. Go to the <strong>order data</strong> page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:</p>
+<p>The final step requires Logging in to the <a href="https://espa.cr.usgs.gov/login/?next=/">ESPA platform</a>. Go to the order data page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:</p>
 <ul>
 <li>CFMask (Cloud mask)</li>
 <li>Surface reflectance NDMI</li>
 <li>Geotiff</li>
 </ul>
 <p>Now you can submit your order. You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the <code>data</code> folder and name it <code>path5_row68</code>.</p>
-When you have downloaded all files we can unpak them using the <code>untar</code> function. Make sure you set the <code>inputPath</code> to the actual location of the data you wish the unpack.
+When you have downloaded all files we can unpak them using the <code>untar</code> method. Make sure you set the <code>inputPath</code> to the actual location of the data you wish the unpack.
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -954,16 +954,29 @@ for (file in files) {
 </div>
 <p>Now we are ready to start pre-processing the scenes for further analysis</p>
 <h2>2. Pre-processing the Peru scenes</h2>
-<p>To limit the processing time of the 'BfastSpatial' functions we will first crop all Landsat NDMI and CFMask scenes to the extent of our area of interest: the extent of the forestMask. So let's load our forest mask and the Landsat scenes</p>
+<p>To limit the processing time of the <code>BfastSpatial</code> methods we will first crop all Landsat NDMI and CFMask scenes to the extent of our area of interest: the extent of the forestMask. So let's load our forest mask and the Landsat scenes</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Load forest mask and list ndmiRasters
+<pre style=""><code class="source r">#Load forest mask and list Landsat scenes
 forestMask <- raster("data/forestmask/NFM_2001_2231.tif")
-rasterList <- lapply(list.files(inputData, pattern = "*.tif", full.names = TRUE), raster)</code></pre>
+rasterList <- list.files(inputPath, pattern = "*.tif", full.names = TRUE)</code></pre>
 </div>
-The <code>list.files()</code> method loads all files that end with the <code>.tif</code> extension (which are the NDMI scenes and the CFMasks) and puts them in a list. With the <code>lapply</code> method we can apply a function on every instance of the list. In our case we use the function <code>raster</code> to create rasterLayer objects of all listed files. This will allow us to perform raster operations such as the <code>crop</code> function.
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">#crop all scenes to the extent of the mask and save to disk
+for (i in 1:length(rasterList)) {
+  r <- raster(rasterList[i])
+  cropped <- extend(crop(r, forestMask), forestMask)
+  
+  outfile <- sprintf("%s/%s_cropped", inputPath, names(cropped))
+  
+  writeRaster(cropped, filename = outfile, datatype = "INT2S", overwrite=TRUE, progress ="text")
+}</code></pre>
+</div>
 </div>
 </div>
 </div>

@@ -41,7 +41,7 @@ The second step is to select the data sets you wish to order under the Data Sets
 
 In step three you can select additional criteria depending on your needs. The criterium we are interested in is the cloud cover. Setting this to **less than 80%** will filter out imagery that are completely covered by clouds. 
 
-The final step is to export your results. In the **results** tab you can see a list of the scenes that have been found in the archive according to your search criteria. The meta-data of the scenes can be downloaded by clicking **export results** and specifying the output format. Choose **csv**. You will receive an email with a link where you can download the requested csv
+The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The meta-data of the scenes can be downloaded by clicking export results and specifying the output format. Choose **csv**. You will receive an email with a link where you can download the requested csv
 
 ###Placing order at ESPA
 ESPA requires a list of scene ID's(eg: LT52302701999134) in a text file as input. We will create this list with an R script that automatically reads the csv, retrieves the ID's and saves them to a text file. 
@@ -77,7 +77,7 @@ close(order_list)
 ```
 The `sep="\n"` argument creates a new line after adding the ID to the text file. You can check the end result  of this script by opening your text file.
 
-The final step requires Logging in to the [ESPA platform](https://espa.cr.usgs.gov/login/?next=/). Go to the **order data** page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:
+The final step requires Logging in to the [ESPA platform](https://espa.cr.usgs.gov/login/?next=/). Go to the order data page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:
 
 * CFMask (Cloud mask)
 * Surface reflectance NDMI
@@ -85,7 +85,7 @@ The final step requires Logging in to the [ESPA platform](https://espa.cr.usgs.g
 
 Now you can submit your order. You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the `data` folder and name it `path5_row68`. 
 
-When you have downloaded all files we can unpak them using the `untar` function. Make sure you set the `inputPath` to the actual location of the data you wish the unpack.
+When you have downloaded all files we can unpak them using the `untar` method. Make sure you set the `inputPath` to the actual location of the data you wish the unpack.
 ```{r, eval=FALSE, results='hide'}
 #set the path location to the data
 inputPath <- "data/path5_row68"
@@ -102,7 +102,7 @@ Now we are ready to start pre-processing the scenes for further analysis
 
 ##2. Pre-processing the Peru scenes
 
-To limit the processing time of the 'BfastSpatial' functions we will first crop all Landsat NDMI and CFMask scenes to the extent of our area of interest: the extent of the forestMask. So let's load our forest mask and the Landsat scenes
+To limit the processing time of the `BfastSpatial` methods we will first crop all Landsat NDMI and CFMask scenes to the extent of our area of interest: the extent of the forestMask. So let's load our forest mask and the Landsat scenes
 
 ```{r, eval=FALSE, results='hide'}
 #Load forest mask and list Landsat scenes
