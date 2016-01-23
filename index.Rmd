@@ -107,7 +107,7 @@ processLandsatBatch(x=list, vi='ndmi', outdir=dirout, srdir=srdir, delete=TRUE, 
 
 ### Crop and mask
 
- However, for this tutorial we are not interested in monitoring to complete area covered by the Landsat scenes. Reducing the extent and size of the data will shorten the processing time. We will crop and mask the data based on our forest mask. 
+We are not interested in monitoring to complete area covered by the Landsat scenes. By cropping the scenes to the area of our interest we can reduce the processing time. The cropping is done based on the forestmask. This mask will also be used to mask the area of interest to identify the forest areas. 
 
 ```{r, eval=FALSE, results='hide'}
 #Load the forest mask

@@ -956,7 +956,7 @@ list <- list.files(system.file("data/", package='bfastSpatial'), full.names=TRUE
 processLandsatBatch(x=list, vi='ndmi', outdir=dirout, srdir=srdir, delete=TRUE, mask='cfmask', keep=0, overwrite=TRUE, mc.cores = 4)</code></pre>
 </div>
 <h3>Crop and mask</h3>
-<p>However, for this tutorial we are not interested in monitoring to complete area covered by the Landsat scenes. Reducing the extent and size of the data will shorten the processing time. We will crop and mask the data based on our forest mask.</p>
+<p>We are not interested in monitoring to complete area covered by the Landsat scenes. By cropping the scenes to the area of our interest we can reduce the processing time. The cropping is done based on the forestmask. This mask will also be used to mask the area of interest to identify the forest areas.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
