@@ -83,47 +83,68 @@ The final step requires Logging in to the [ESPA platform](https://espa.cr.usgs.g
 * Surface reflectance NDMI
 * Geotiff 
 
-Now you can submit your order. You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the `data` folder and name it `path5_row68`. 
+Now you can submit your order.
 
-When you have downloaded all files we can unpak them using the `untar` method. Make sure you set the `inputPath` to the actual location of the data you wish the unpack.
-```{r, eval=FALSE, results='hide'}
-#set the path location to the data
-inputPath <- "data/path5_row68"
+### Downloading your data
 
-#load Landsat tar files and untar these in the data folder 
-files <- list.files(inputPath, full.names = TRUE)
-
-for (file in files) {
-  untar(file, exdir = inputPath)
-}
-``` 
-
-Now we are ready to start pre-processing the scenes for further analysis
+You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the `data` folder and name it `path5_row68`. 
 
 ##2. Pre-processing the Peru scenes
 
-To limit the processing time of the `BfastSpatial` methods we will first crop all Landsat NDMI and CFMask scenes to the extent of our area of interest: the extent of the forestMask. So let's load our forest mask and the Landsat scenes
+First step of the pre-processing is to run the `processLandsatBatch` method to extract the data and apply the cloud mask which is supplied with the data. 
 
-```{r, eval=FALSE, results='hide'}
-#Load forest mask and list Landsat scenes
-forestMask <- raster("data/forestmask/NFM_2001_2231.tif")
-rasterList <- list.files(inputPath, pattern = "*.tif", full.names = TRUE)
+```{r}{r, eval=FALSE, results='hide'}
+# Create a temporary directory to store the output files.
+srdir <- dirout <- file.path(dirname(rasterTmpFile()), 'bfmspatial')
+dir.create(dirout, showWarning=FALSE)
 
+# Get the directory where the Landsat archives are stored
+list <- list.files(system.file("data/", package='bfastSpatial'), full.names=TRUE)
+
+# Run the batch line
+processLandsatBatch(x=list, vi='ndmi', outdir=dirout, srdir=srdir, delete=TRUE, mask='cfmask', keep=0, overwrite=TRUE, mc.cores = 4)
 ```
 
+### Crop and mask
 
+ However, for this tutorial we are not interested in monitoring to complete area covered by the Landsat scenes. Reducing the extent and size of the data will shorten the processing time. We will crop and mask the data based on our forest mask. 
 
 ```{r, eval=FALSE, results='hide'}
-#crop all scenes to the extent of the mask and save to disk
-for (i in 1:length(rasterList)) {
-  r <- raster(rasterList[i])
-  cropped <- extend(crop(r, forestMask), forestMask)
+#Load the forest mask
+fmask <- raster("data/forestmask/fm_potooccupa1.tif")
+
+#retrieve scene names to add them back to the output rasters.             
+dir <- list.files(dirout, pattern=glob2rx('*.grd'))
+
+#Crop and mask the processed scenes and save them to disk
+for (i in 1:length(list)) {
+  scene <- raster(list[i])
+  crop_scene <- extend(crop(scene, fmask), fmask)
+  mask_scene <- mask(fmask, crop_scene)
   
-  outfile <- sprintf("%s/%s_cropped", inputPath, names(cropped))
-  
-  writeRaster(cropped, filename = outfile, datatype = "INT2S", overwrite=TRUE, progress ="text")
+  fname <- paste(dirout, "/fmask.", dir[i], sep = "")
+  writeRaster(mask_scene, filename = fname, datatype = "INT2S", overwrite=TRUE)
 }
 
 ```
+the `for` loop runs through our list of processed ndmi images, crops the extent and masks the values according to the forestmask. `fname` is used to assign the correct file names for each output scene. 
 
+### Create a multi-temporal raster object
+
+Finally we need to create a mutli-temporal raster object by adding all processed rasters to a `rasterbrick` using the `timeStack` method. First we will create a new directory where we can save the stack. Then we can load the list with the masked Landsat scenes which we will use as the input for the `timeStack`.
+
+```{r, eval=FALSE, results='hide'}
+# Create a new subdirectory in the temporary directory
+dirout <- file.path(dirname(rasterTmpFile()), 'stack')
+dir.create(dirout, showWarnings=FALSE)
+
+#List the masked Landsat scenes
+list <- list.files(dirout, pattern=glob2rx('fmask*.grd'), full.names = TRUE)
+
+# Generate a file name for the output stack
+stackName <- file.path(dirout, 'stack.grd')
+
+# Stack the layers
+s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)
+```
 
