@@ -884,6 +884,30 @@ Tutorial deforistation monitoring Peru
 <li>Data invenctory</li>
 <li>Spatial BFASTMonitor</li>
 </ol>
+<h3>Setting up the working environment</h3>
+<p>Let's start with setting up our working environment. We want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the <code>libraries</code> that we will be using. If you cannot load any packages then you most probably need to install it. Use <code>install.packages()</code> to do so.</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">#Loading packages
+library(raster)
+library(devtools)
+
+#install and load bfastspatial from github
+install_github('dutri001/bfastSpatial') #requires devtools
+library(bfastSpatial)</code></pre>
+</div>
+<p>We will set our working directory by specifying a <code>projectPath</code> which points to the folder where your project lives. We will create a <code>path5_row68</code> folder inside the <code>data</code> folder which we will use to save our initial data to. Set your working directory to the projectPath.</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">#Set the working directory
+projectPath <- "C:/../DeforestationPeru"
+inputdata <- "data/path5_row68"
+setwd(projectPath)</code></pre>
+</div>
 <h2>1. Downloading Landsat data from Earth Explorer/espa</h2>
 <p>To download data from the <a href="https://espa.cr.usgs.gov/login/?next=/">ESPA</a> website we first need to create a text file which contains the Landsat scene ID's of our area of interest. The common way to access the Landsat archives and retrieve the list is via the <a href="http://earthexplorer.usgs.gov">Earth Explorer platform</a>. You will need to register for an account.</p>
 <p>After logging in on the Earth Explorer platform you can search the Landsat archive by:</p>
@@ -913,7 +937,7 @@ csv <- read.csv(file = "data/LSR_LANDSAT_8_97722_PATH5_ROW68.csv")
 sceneID <- as.character(csv$Landsat.Scene.Identifier)
 
 #Create a text file
-order_list <- file("output/orderlist.txt", "w")</code></pre>
+order_list <- file("orderlist.txt", "w")</code></pre>
 </div>
 <p>Remember to change the <code>file</code> argument of <code>read.csv()</code> with the <code>&quot;path/filename.csv&quot;</code> pointing to the location of the csv on your own computer. The same goes for the output destination of <code>file()</code>.</p>
 <p>To save each scene ID on a seperate line in the text file, we will use a loop that retrieves the scene ID's and adds them one by one to the text file with <code>writeLines()</code>. Close the connection to the file at the end to save your output.</p>

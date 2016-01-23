@@ -21,6 +21,27 @@ In this tutorial the following change detection workflow steps will briefly disc
 3. Data invenctory
 4. Spatial BFASTMonitor
 
+###Setting up the working environment
+Let's start with setting up our working environment. We want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the `libraries` that we will be using. If you cannot load any packages then you most probably need to install it. Use `install.packages()` to do so. 
+
+```{r, eval=FALSE, results='hide'}
+#Loading packages
+library(raster)
+library(devtools)
+
+#install and load bfastspatial from github
+install_github('dutri001/bfastSpatial') #requires devtools
+library(bfastSpatial)
+```
+We will set our working directory by specifying a `projectPath` which points to the folder where your project lives. We will create a `path5_row68` folder inside the `data` folder which we will use to save our initial data to. Set your working directory to the projectPath.
+
+```{r, eval=FALSE, results='hide'}
+#Set the working directory
+projectPath <- "C:/../DeforestationPeru"
+inputdata <- "data/path5_row68"
+setwd(projectPath)
+```
+
 ##1. Downloading Landsat data from Earth Explorer/espa
 To download data from the [ESPA](https://espa.cr.usgs.gov/login/?next=/) website we first need to create a text file which contains the Landsat scene ID's of our area of interest. The common way to access the Landsat archives and retrieve the list is via the [Earth Explorer platform](http://earthexplorer.usgs.gov). You will need to register for an account.   
 
@@ -56,7 +77,7 @@ csv <- read.csv(file = "data/LSR_LANDSAT_8_97722_PATH5_ROW68.csv")
 sceneID <- as.character(csv$Landsat.Scene.Identifier)
 
 #Create a text file
-order_list <- file("output/orderlist.txt", "w")
+order_list <- file("orderlist.txt", "w")
 ```
 
 
