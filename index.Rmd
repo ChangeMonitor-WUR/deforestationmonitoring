@@ -173,6 +173,17 @@ s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)
 
 ###Working with pixels
 
-Now we want to check how the `bfastMonitor` will perform with the Peru datsets by using the `bfmPixel` to check the behavior of a single pixel in the time series. First you need to load the rasterBrick which we created in the previous section
+Use `bfmPixel` to explore the behavior of the Peru datasets. Make sure you have loaded your rasterstack created in the previous section. Plot one scene from the brick, run the `bfmPixel` method and select a pixel you want to explore by clicking on the plotted Landsat scene. 
 
+```{r, eval=FALSE, results='hide'}
+#Plot the second scene from the brick
+plot(s, 2)
 
+# run bfmPixel() in interactive mode with a monitoring period 
+# starting @ the 1st day in 2015
+bfm <- bfmPixel(s, start=c(2015, 1), interactive=TRUE)
+
+#Click on a pixel in the plot. 
+
+#Error: Error in xj[i, , drop = FALSE] : subscript out of bounds
+```
