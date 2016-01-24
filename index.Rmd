@@ -42,6 +42,7 @@ setwd(projectPath)
 ```
 
 ##1. Downloading Landsat data from Earth Explorer/espa
+###Retrieving scene ID's
 To download data from the [ESPA](https://espa.cr.usgs.gov/login/?next=/) website we first need to create a text file which contains the Landsat scene ID's of our area of interest. The common way to access the Landsat archives and retrieve the list is via the [Earth Explorer platform](http://earthexplorer.usgs.gov). You will need to register for an account.   
 
 After logging in on the Earth Explorer platform you can search the Landsat archive by:
@@ -169,4 +170,9 @@ s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)
 ```
 
 ##3. Spatial BFASTMonitor
+
+###Working with pixels
+
+Now we want to check how the `bfastMonitor` will perform with the Peru datsets by using the `bfmPixel` to check the behavior of a single pixel in the time series. First you need to load the rasterBrick which we created in the previous section
+
 
