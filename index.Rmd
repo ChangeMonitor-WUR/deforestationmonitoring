@@ -18,11 +18,10 @@ In this tutorial the following change detection workflow steps will briefly disc
 
 1. Downloading remote sensing scenes
 2. Pre-processing the scenes
-3. Data invenctory
-4. Spatial BFASTMonitor
+3. Spatial BFASTMonitor
 
 ###Setting up the working environment
-Let's start with setting up our working environment. We want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the `libraries` that we will be using. If you cannot load any packages then you most probably need to install it. Use `install.packages()` to do so. 
+Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the `libraries` that we will be using. If you cannot load any packages then you most probably need to install it. Use `install.packages()` to do so. 
 
 ```{r, eval=FALSE, results='hide'}
 #Loading packages
@@ -168,4 +167,6 @@ stackName <- file.path(dirout, 'stack.grd')
 # Stack the layers
 s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)
 ```
+
+##3. Spatial BFASTMonitor
 

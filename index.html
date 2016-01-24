@@ -865,7 +865,7 @@
 <div id="header">
 <h1 class="title">Tutorial deforistation monitoring Peru</h1>
 <h2 class="author">Rony Nedkov</h2>
-<h3 class="date">23 January, 2016</h3>
+<h3 class="date">24 January, 2016</h3>
 </div>
 <title>
 Tutorial deforistation monitoring Peru
@@ -881,11 +881,10 @@ Tutorial deforistation monitoring Peru
 <ol style="list-style-type: decimal">
 <li>Downloading remote sensing scenes</li>
 <li>Pre-processing the scenes</li>
-<li>Data invenctory</li>
 <li>Spatial BFASTMonitor</li>
 </ol>
 <h3>Setting up the working environment</h3>
-<p>Let's start with setting up our working environment. We want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the <code>libraries</code> that we will be using. If you cannot load any packages then you most probably need to install it. Use <code>install.packages()</code> to do so.</p>
+<p>Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the <code>libraries</code> that we will be using. If you cannot load any packages then you most probably need to install it. Use <code>install.packages()</code> to do so.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -1021,6 +1020,7 @@ stackName <- file.path(dirout, 'stack.grd')
 # Stack the layers
 s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)</code></pre>
 </div>
+<h2>3. Spatial BFASTMonitor</h2>
 </div>
 </div>
 </div>
