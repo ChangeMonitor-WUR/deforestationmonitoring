@@ -69,9 +69,13 @@ dirout <- file.path(dirname(rasterTmpFile()), 'stack')
 dir.create(dirout, showWarnings=FALSE)
 
 # Generate a file name for the output stack
-stackName <- file.path(dirout, 'stack.grd')
+stackName <- file.path(outputdata, 'stack.grd')
 
 # Stack the layers
 s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)
 
+plot(s, 2)
 
+bfm <- bfmPixel(s, start=c(2015, 1), interactive=TRUE)
+
+#Error: Error in xj[i, , drop = FALSE] : subscript out of bounds
