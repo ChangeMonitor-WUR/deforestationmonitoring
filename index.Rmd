@@ -21,7 +21,7 @@ In this tutorial the following change detection workflow steps will briefly disc
 3. Spatial BFASTMonitor
 
 ###Setting up the working environment
-Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the `libraries` that we will be using. If you cannot load any packages then you most probably need to install it. Use `install.packages()` to do so. 
+Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the `libraries` that we will be using. If you cannot load any packages then you most probably need to install it. Use `install.packages()` to do so. Installation of the bfastspatial pacakge can be done using the `instal_github()` method.
 
 ```{r, eval=FALSE, results='hide'}
 #Loading packages
@@ -32,7 +32,7 @@ library(devtools)
 install_github('dutri001/bfastSpatial') #requires devtools
 library(bfastSpatial)
 ```
-We will set our working directory by specifying a `projectPath` which points to the folder where your project lives. We will create a `path5_row68` folder inside the `data` folder which we will use to save our initial data to. Set your working directory to the projectPath.
+We will set our working directory by specifying a `projectPath` which points to the folder where the project lives. We will create a `path5_row68` folder inside the `data` folder which we will use to save our initial data to. Set your working directory to the projectPath.
 
 ```{r, eval=FALSE, results='hide'}
 #Set the working directory
@@ -52,51 +52,74 @@ After logging in on the Earth Explorer platform you can search the Landsat archi
 3. Setting additional criteria
 4. Exporting results
 
-For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at **path number 5** and **row number 68**. Click the **show** button after entering the desired path and row number. A marker will appear on the map and this will make sure only scenes from that area will be downloaded. Set the date range from **1 January 2015 to the current date** to download all scenes that are available in that range. 
+For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at **path number 5** and **row number 68**. Click the **show** button after entering the desired path and row number. A marker will appear on the map and this will make sure only scenes from that area will be downloaded. Under the results there is a dropdown menu specifying the number of records to be returned. Select **500** to make sure we have enough Landsat scenes.
 
-![define search criteria](figures/step_1_small.png)      
+![define search criteria](figures/step1.PNG)      
 
 The second step is to select the data sets you wish to order under the Data Sets tab. For this tutorial we will use **Landsat Surface Reflectance - L8 OLI/TIRS** and **Landsat Surface Reflectance - L7 ETM+** from the **Landsat Archive**.
 
-![define search criteria](figures/step_2.PNG)
+![define search criteria](figures/step2.PNG)
 
-In step three you can select additional criteria depending on your needs. The criterium we are interested in is the cloud cover. Setting this to **less than 80%** will filter out imagery that are completely covered by clouds. 
+In step three you can select additional criteria depending on your needs. The criterion we are interested in, is the cloud cover. Setting this to **less than 80%** will filter out imagery that are completely covered by clouds and therefore unusable. 
 
-The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The meta-data of the scenes can be downloaded by clicking export results and specifying the output format. Choose **csv**. You will receive an email with a link where you can download the requested csv
+The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The scenes can be downloaded by clicking on export results. A new window will open where we can choose our desired output. Choose **CSV**. Repeat this step, but now for the scenes from the other satellite. You can choose the other satellite by clicking on the drop down menu under data sets.
+
+![Choosing other dataset](figures/step3.PNG)
+
+
+You will receive an email with a link where you can download the requested csv. Save the link in your data folder.
 
 ###Placing order at ESPA
-ESPA requires a list of scene ID's(eg: LT52302701999134) in a text file as input. We will create this list with an R script that automatically reads the csv, retrieves the ID's and saves them to a text file. 
+ESPA requires a list of scene ID's(e.g. LT52302701999134) in a text file as input. We will create this list with an R script that automatically reads the csv files, retrieves the ID's and saves them to a text file. 
 
-First we want to read the csv in R and retrieve the scene ID's. We will also create the file in which we can save our output. 
+First we want to read both csv in R and retrieve the scene ID's. Also, create a file in which the ID's can be stored. Read the scene ID's of the first file and put them in a variable `sceneID` for further processing. 
 
-```{r, results='hide'}
-#read csv file
-csv <- read.csv(file = "data/LSR_LANDSAT_8_97722_PATH5_ROW68.csv")
-
-#Retrieve scene ID's from csv
-sceneID <- as.character(csv$Landsat.Scene.Identifier)
+```{r, eval=FALSE, results='hide'}
+#Read both csv files
+csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
+csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
 
 #Create a text file
-order_list <- file("orderlist.txt", "w")
+order_list <- file("output/orderlist.txt", "w")
+
+#Retrieve scene ID's from first csv file
+sceneID <- as.character(csv1$Landsat.Scene.Identifier)
 ```
 
 
 Remember to change the `file` argument of `read.csv()` with the `"path/filename.csv"` pointing to the location of the csv on your own computer. The same goes for the output destination of `file()`.
 
-To save each scene ID on a seperate line in the text file, we will use a loop that retrieves the scene ID's and adds them one by one to the text file with `writeLines()`. Close the connection to the file at the end to save your output. 
+To save each scene ID on a separate line in the text file, we will use a loop that retrieves the scene ID's and adds them one by one to the text file with `writeLines()`.
 
 
 ```{r, eval=FALSE, results='hide'}
-#Retrieve the ID's from csv and write them on a new line in the file
+#Write the ID's in the text file line by line
 for(i in 1:length(sceneID)) {
   ID <- sceneID[i]
+  print(ID)
   writeLines(ID, order_list, sep="\n")
 }
+```
+The `sep="\n"` argument creates a new line after adding the ID to the text file. 
+
+We also want to add the scene ID's from the second file. Put the scene ID's from the second file in the `sceneID` variable and run the for loop again. Add the end close the connection to the file. This will save the ID's to the text file. 
+
+```{r, eval=FALSE, results='hide'}
+#Retrieve scene ID's from second csv file
+sceneID <- as.character(csv2$Landsat.Scene.Identifier)
+
+#Write the ID's in the text file line by line
+for(i in 1:length(sceneID)) { 
+  ID <- sceneID[i]
+  print(ID)
+  writeLines(ID, order_list, sep="\n")
+}  
+
 #close connection to file
 close(order_list)
-
 ```
-The `sep="\n"` argument creates a new line after adding the ID to the text file. You can check the end result  of this script by opening your text file.
+
+You can check the end result  of this script by opening your text file.
 
 The final step requires Logging in to the [ESPA platform](https://espa.cr.usgs.gov/login/?next=/). Go to the order data page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:
 

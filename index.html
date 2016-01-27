@@ -865,7 +865,7 @@
 <div id="header">
 <h1 class="title">Tutorial deforistation monitoring Peru</h1>
 <h2 class="author">Rony Nedkov</h2>
-<h3 class="date">24 January, 2016</h3>
+<h3 class="date">27 January, 2016</h3>
 </div>
 <title>
 Tutorial deforistation monitoring Peru
@@ -884,7 +884,7 @@ Tutorial deforistation monitoring Peru
 <li>Spatial BFASTMonitor</li>
 </ol>
 <h3>Setting up the working environment</h3>
-<p>Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the <code>libraries</code> that we will be using. If you cannot load any packages then you most probably need to install it. Use <code>install.packages()</code> to do so.</p>
+<p>Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the <code>libraries</code> that we will be using. If you cannot load any packages then you most probably need to install it. Use <code>install.packages()</code> to do so. Installation of the bfastspatial pacakge can be done using the <code>instal_github()</code> method.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -897,7 +897,7 @@ library(devtools)
 install_github('dutri001/bfastSpatial') #requires devtools
 library(bfastSpatial)</code></pre>
 </div>
-<p>We will set our working directory by specifying a <code>projectPath</code> which points to the folder where your project lives. We will create a <code>path5_row68</code> folder inside the <code>data</code> folder which we will use to save our initial data to. Set your working directory to the projectPath.</p>
+<p>We will set our working directory by specifying a <code>projectPath</code> which points to the folder where the project lives. We will create a <code>path5_row68</code> folder inside the <code>data</code> folder which we will use to save our initial data to. Set your working directory to the projectPath.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -917,43 +917,64 @@ setwd(projectPath)</code></pre>
 <li>Setting additional criteria</li>
 <li>Exporting results</li>
 </ol>
-<p>For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at <strong>path number 5</strong> and <strong>row number 68</strong>. Click the <strong>show</strong> button after entering the desired path and row number. A marker will appear on the map and this will make sure only scenes from that area will be downloaded. Set the date range from <strong>1 January 2015 to the current date</strong> to download all scenes that are available in that range.</p>
-<p><img src="figures/step_1_small.png" alt="define search criteria" /></p>
+<p>For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at <strong>path number 5</strong> and <strong>row number 68</strong>. Click the <strong>show</strong> button after entering the desired path and row number. A marker will appear on the map and this will make sure only scenes from that area will be downloaded. Under the results there is a dropdown menu specifying the number of records to be returned. Select <strong>500</strong> to make sure we have enough Landsat scenes.</p>
+<p><img src="figures/step1.PNG" alt="define search criteria" /></p>
 <p>The second step is to select the data sets you wish to order under the Data Sets tab. For this tutorial we will use <strong>Landsat Surface Reflectance - L8 OLI/TIRS</strong> and <strong>Landsat Surface Reflectance - L7 ETM+</strong> from the <strong>Landsat Archive</strong>.</p>
-<p><img src="figures/step_2.PNG" alt="define search criteria" /></p>
-<p>In step three you can select additional criteria depending on your needs. The criterium we are interested in is the cloud cover. Setting this to <strong>less than 80%</strong> will filter out imagery that are completely covered by clouds.</p>
-<p>The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The meta-data of the scenes can be downloaded by clicking export results and specifying the output format. Choose <strong>csv</strong>. You will receive an email with a link where you can download the requested csv</p>
+<p><img src="figures/step2.PNG" alt="define search criteria" /></p>
+<p>In step three you can select additional criteria depending on your needs. The criterion we are interested in, is the cloud cover. Setting this to <strong>less than 80%</strong> will filter out imagery that are completely covered by clouds and therefore unusable.</p>
+<p>The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The scenes can be downloaded by clicking on export results. A new window will open where we can choose our desired output. Choose <strong>CSV</strong>. Repeat this step, but now for the scenes from the other satellite. You can choose the other satellite by clicking on the drop down menu under data sets.</p>
+<p><img src="figures/step3.PNG" alt="Choosing other dataset" /></p>
+<p>You will receive an email with a link where you can download the requested csv. Save the link in your data folder.</p>
 <h3>Placing order at ESPA</h3>
-<p>ESPA requires a list of scene ID's(eg: LT52302701999134) in a text file as input. We will create this list with an R script that automatically reads the csv, retrieves the ID's and saves them to a text file.</p>
-<p>First we want to read the csv in R and retrieve the scene ID's. We will also create the file in which we can save our output.</p>
+<p>ESPA requires a list of scene ID's(e.g. LT52302701999134) in a text file as input. We will create this list with an R script that automatically reads the csv files, retrieves the ID's and saves them to a text file.</p>
+<p>First we want to read both csv in R and retrieve the scene ID's. Also, create a file in which the ID's can be stored. Read the scene ID's of the first file and put them in a variable <code>sceneID</code> for further processing.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#read csv file
-csv <- read.csv(file = "data/LSR_LANDSAT_8_97722_PATH5_ROW68.csv")
-
-#Retrieve scene ID's from csv
-sceneID <- as.character(csv$Landsat.Scene.Identifier)
+<pre style=""><code class="source r">#Read both csv files
+csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
+csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
 
 #Create a text file
-order_list <- file("orderlist.txt", "w")</code></pre>
+order_list <- file("output/orderlist.txt", "w")
+
+#Retrieve scene ID's from first csv file
+sceneID <- as.character(csv1$Landsat.Scene.Identifier)</code></pre>
 </div>
 <p>Remember to change the <code>file</code> argument of <code>read.csv()</code> with the <code>&quot;path/filename.csv&quot;</code> pointing to the location of the csv on your own computer. The same goes for the output destination of <code>file()</code>.</p>
-<p>To save each scene ID on a seperate line in the text file, we will use a loop that retrieves the scene ID's and adds them one by one to the text file with <code>writeLines()</code>. Close the connection to the file at the end to save your output.</p>
+<p>To save each scene ID on a separate line in the text file, we will use a loop that retrieves the scene ID's and adds them one by one to the text file with <code>writeLines()</code>.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Retrieve the ID's from csv and write them on a new line in the file
+<pre style=""><code class="source r">#Write the ID's in the text file line by line
 for(i in 1:length(sceneID)) {
   ID <- sceneID[i]
+  print(ID)
   writeLines(ID, order_list, sep="\n")
-}
+}</code></pre>
+</div>
+<p>The <code>sep=&quot;\n&quot;</code> argument creates a new line after adding the ID to the text file.</p>
+<p>We also want to add the scene ID's from the second file. Put the scene ID's from the second file in the <code>sceneID</code> variable and run the for loop again. Add the end close the connection to the file. This will save the ID's to the text file.</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">#Retrieve scene ID's from second csv file
+sceneID <- as.character(csv2$Landsat.Scene.Identifier)
+
+#Write the ID's in the text file line by line
+for(i in 1:length(sceneID)) { 
+  ID <- sceneID[i]
+  print(ID)
+  writeLines(ID, order_list, sep="\n")
+}  
+
 #close connection to file
 close(order_list)</code></pre>
 </div>
-<p>The <code>sep=&quot;\n&quot;</code> argument creates a new line after adding the ID to the text file. You can check the end result of this script by opening your text file.</p>
+<p>You can check the end result of this script by opening your text file.</p>
 <p>The final step requires Logging in to the <a href="https://espa.cr.usgs.gov/login/?next=/">ESPA platform</a>. Go to the order data page. Here you can upload the text file with the list of scenes you want to have pre-processed. Select the following options:</p>
 <ul>
 <li>CFMask (Cloud mask)</li>
