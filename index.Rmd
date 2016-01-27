@@ -201,3 +201,8 @@ plot(bfm$bfm)
 
 ![Result bfmPixel](figures/bfmPixel.PNG)
 
+Run several pixels test as discussed in [Introduction to spatialBfast tutorial](http://www.loicdutrieux.com/bfastSpatial/#Working_with_pixels__bfmPixel) to define the correct parameters
+
+### Running `bfastMonitor` over entire raster time series
+
+Now that we have done some pixel-based testing, it is time to apply bfastmonitor over an entire raster time series. This will allow us to pinpoint the location and timing of changes in our study area. Pass the arguments for the parameters which you found during pixel-based testing to the `bfmSPatial` and run it. 
