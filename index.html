@@ -1036,17 +1036,19 @@ ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwri
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Plot the second scene from the brick
-plot(s, 2)
+<pre style=""><code class="source r">#Plot one scene from the Brick
+plot(ndmiStack[[1]])
 
 # run bfmPixel() in interactive mode with a monitoring period 
 # starting @ the 1st day in 2015
-bfm <- bfmPixel(s, start=c(2015, 1), interactive=TRUE)
+bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)ve=TRUE)
 
 #Click on a pixel in the plot. 
 
-#Error: Error in xj[i, , drop = FALSE] : subscript out of bounds</code></pre>
+#Plot the results
+plot(bfm$bfm)</code></pre>
 </div>
+<img src="figures/bfmPixel.PNG" alt="Result bfmPixel" />
 </div>
 </div>
 </div>

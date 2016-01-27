@@ -179,7 +179,6 @@ stackName <- file.path(outputdata, 'stackNDMI.grd')
 ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwrite=TRUE)
 ```
 
-
 ##3. Spatial BFASTMonitor
 
 ###Working with pixels
@@ -187,14 +186,18 @@ ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwri
 Use `bfmPixel` to explore the behavior of the Peru datasets. Make sure you have loaded your rasterstack created in the previous section. Plot one scene from the brick, run the `bfmPixel` method and select a pixel you want to explore by clicking on the plotted Landsat scene. 
 
 ```{r, eval=FALSE, results='hide'}
-#Plot the second scene from the brick
-plot(s, 2)
+#Plot one scene from the Brick
+plot(ndmiStack[[1]])
 
 # run bfmPixel() in interactive mode with a monitoring period 
 # starting @ the 1st day in 2015
-bfm <- bfmPixel(s, start=c(2015, 1), interactive=TRUE)
+bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)ve=TRUE)
 
 #Click on a pixel in the plot. 
 
-#Error: Error in xj[i, , drop = FALSE] : subscript out of bounds
+#Plot the results
+plot(bfm$bfm)
 ```
+
+![Result bfmPixel](figures/bfmPixel.PNG)
+
