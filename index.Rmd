@@ -24,18 +24,18 @@ In this tutorial the following change detection workflow steps will briefly disc
 Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the `libraries` that we will be using. If you cannot load any packages then you most probably need to install it. Use `install.packages()` to do so. Installation of the bfastspatial pacakge can be done using the `instal_github()` method.
 
 ```{r, eval=FALSE, results='hide'}
-#Loading packages
+# Loading packages
 library(raster)
 library(devtools)
 
-#install and load bfastspatial from github
+# install and load bfastspatial from github
 install_github('dutri001/bfastSpatial') #requires devtools
 library(bfastSpatial)
 ```
 We will set our working directory by specifying a `projectPath` which points to the folder where the project lives. We will create a `path5_row68` folder inside the `data` folder which we will use to save our initial data to. Set your working directory to the projectPath.
 
 ```{r, eval=FALSE, results='hide'}
-#Set the working directory
+# Set the working directory
 projectPath <- "C:/../DeforestationPeru"
 inputdata <- "data/path5_row68"
 setwd(projectPath)
@@ -75,14 +75,14 @@ ESPA requires a list of scene ID's(e.g. LT52302701999134) in a text file as inpu
 First we want to read both csv in R and retrieve the scene ID's. Also, create a file in which the ID's can be stored. Read the scene ID's of the first file and put them in a variable `sceneID` for further processing. 
 
 ```{r, eval=FALSE, results='hide'}
-#Read both csv files
+# Read both csv files
 csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
 csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
 
-#Create a text file
+# Create a text file
 order_list <- file("output/orderlist.txt", "w")
 
-#Retrieve scene ID's from first csv file
+# Retrieve scene ID's from first csv file
 sceneID <- as.character(csv1$Landsat.Scene.Identifier)
 ```
 
@@ -93,7 +93,7 @@ To save each scene ID on a separate line in the text file, we will use a loop th
 
 
 ```{r, eval=FALSE, results='hide'}
-#Write the ID's in the text file line by line
+# Write the ID's in the text file line by line
 for(i in 1:length(sceneID)) {
   ID <- sceneID[i]
   print(ID)
@@ -105,17 +105,17 @@ The `sep="\n"` argument creates a new line after adding the ID to the text file.
 We also want to add the scene ID's from the second file. Put the scene ID's from the second file in the `sceneID` variable and run the for loop again. Add the end close the connection to the file. This will save the ID's to the text file. 
 
 ```{r, eval=FALSE, results='hide'}
-#Retrieve scene ID's from second csv file
+# Retrieve scene ID's from second csv file
 sceneID <- as.character(csv2$Landsat.Scene.Identifier)
 
-#Write the ID's in the text file line by line
+# Write the ID's in the text file line by line
 for(i in 1:length(sceneID)) { 
   ID <- sceneID[i]
   print(ID)
   writeLines(ID, order_list, sep="\n")
 }  
 
-#close connection to file
+# close connection to file
 close(order_list)
 ```
 
@@ -135,43 +135,33 @@ You will receive an email when your order is ready for download. Use a download 
 
 ##2. Pre-processing the Peru scenes
 
-First step of the pre-processing is to run the `processLandsatBatch` method to extract the data and apply the cloud mask which is supplied with the data. 
+Let's first create a temporary directory which we will use to save intermediate results of the pre-processing.
 
 ```{r}{r, eval=FALSE, results='hide'}
 # Create a temporary directory to store the output files.
 srdir <- dirout <- file.path(dirname(rasterTmpFile()), 'bfmspatial')
 dir.create(dirout, showWarning=FALSE)
-
-# Get the directory where the Landsat archives are stored
-list <- list.files(system.file("data/", package='bfastSpatial'), full.names=TRUE)
-
-# Run the batch line
-processLandsatBatch(x=list, vi='ndmi', outdir=dirout, srdir=srdir, delete=TRUE, mask='cfmask', keep=0, overwrite=TRUE, mc.cores = 4)
 ```
 
-### Crop and mask
+### Running processLandsatBatch
 
-We are not interested in monitoring to complete area covered by the Landsat scenes. By cropping the scenes to the area of our interest we can reduce the processing time. The cropping is done based on the forestmask. This mask will also be used to mask the area of interest to identify the forest areas. 
+Now we can use the `processLandsatBatch` method to extract the data and apply the cloud mask which is supplied with the data. We will also provide a new extent to the method to crop all Landsat scenes, since we are only interested in a small part of the entire scene. Specify the extent `c(580485, 617265, -1251615, -1204275))` as a new variable and pass this to the `processLandsatBatch` method.   
 
 ```{r, eval=FALSE, results='hide'}
-#Load the forest mask
-fmask <- raster("data/forestmask/fm_potooccupa1.tif")
+# Create an extent variable
+newExtent <- extent(c(580485, 617265, -1251615, -1204275))
 
-#retrieve scene names to add them back to the output rasters.             
-dir <- list.files(dirout, pattern=glob2rx('*.grd'))
+# List the Landsat scenes
+inputList <- list.files(inputdata, full.names=TRUE)
 
-#Crop and mask the processed scenes and save them to disk
-for (i in 1:length(list)) {
-  scene <- raster(list[i])
-  crop_scene <- extend(crop(scene, fmask), fmask)
-  mask_scene <- mask(fmask, crop_scene)
-  
-  fname <- paste(dirout, "/fmask.", dir[i], sep = "")
-  writeRaster(mask_scene, filename = fname, datatype = "INT2S", overwrite=TRUE)
-}
+# Process new landsat scenes
+processLandsatBatch(x = inputList, pattern = glob2rx('*.tar.gz'), outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
 
+# List the processed NDMI scenes for stacking
+nmdiList <- list.files(dirout, pattern=glob2rx('ndmi*.grd'), full.names = TRUE)
 ```
-the `for` loop runs through our list of processed ndmi images, crops the extent and masks the values according to the forestmask. `fname` is used to assign the correct file names for each output scene. 
+
+This can take some time depending on the size of the dataset. When the process has finished we can list the processed NDMI scenes for further processing.
 
 ### Create a multi-temporal raster object
 
@@ -182,15 +172,13 @@ Finally we need to create a mutli-temporal raster object by adding all processed
 dirout <- file.path(dirname(rasterTmpFile()), 'stack')
 dir.create(dirout, showWarnings=FALSE)
 
-#List the masked Landsat scenes
-list <- list.files(dirout, pattern=glob2rx('fmask*.grd'), full.names = TRUE)
-
 # Generate a file name for the output stack
-stackName <- file.path(dirout, 'stack.grd')
+stackName <- file.path(outputdata, 'stackNDMI.grd')
 
 # Stack the layers
-s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)
+ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwrite=TRUE)
 ```
+
 
 ##3. Spatial BFASTMonitor
 

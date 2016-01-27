@@ -889,11 +889,11 @@ Tutorial deforistation monitoring Peru
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Loading packages
+<pre style=""><code class="source r"># Loading packages
 library(raster)
 library(devtools)
 
-#install and load bfastspatial from github
+# install and load bfastspatial from github
 install_github('dutri001/bfastSpatial') #requires devtools
 library(bfastSpatial)</code></pre>
 </div>
@@ -902,7 +902,7 @@ library(bfastSpatial)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Set the working directory
+<pre style=""><code class="source r"># Set the working directory
 projectPath <- "C:/../DeforestationPeru"
 inputdata <- "data/path5_row68"
 setwd(projectPath)</code></pre>
@@ -932,14 +932,14 @@ setwd(projectPath)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Read both csv files
+<pre style=""><code class="source r"># Read both csv files
 csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
 csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
 
-#Create a text file
+# Create a text file
 order_list <- file("output/orderlist.txt", "w")
 
-#Retrieve scene ID's from first csv file
+# Retrieve scene ID's from first csv file
 sceneID <- as.character(csv1$Landsat.Scene.Identifier)</code></pre>
 </div>
 <p>Remember to change the <code>file</code> argument of <code>read.csv()</code> with the <code>&quot;path/filename.csv&quot;</code> pointing to the location of the csv on your own computer. The same goes for the output destination of <code>file()</code>.</p>
@@ -948,7 +948,7 @@ sceneID <- as.character(csv1$Landsat.Scene.Identifier)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Write the ID's in the text file line by line
+<pre style=""><code class="source r"># Write the ID's in the text file line by line
 for(i in 1:length(sceneID)) {
   ID <- sceneID[i]
   print(ID)
@@ -961,17 +961,17 @@ for(i in 1:length(sceneID)) {
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Retrieve scene ID's from second csv file
+<pre style=""><code class="source r"># Retrieve scene ID's from second csv file
 sceneID <- as.character(csv2$Landsat.Scene.Identifier)
 
-#Write the ID's in the text file line by line
+# Write the ID's in the text file line by line
 for(i in 1:length(sceneID)) { 
   ID <- sceneID[i]
   print(ID)
   writeLines(ID, order_list, sep="\n")
 }  
 
-#close connection to file
+# close connection to file
 close(order_list)</code></pre>
 </div>
 <p>You can check the end result of this script by opening your text file.</p>
@@ -985,44 +985,34 @@ close(order_list)</code></pre>
 <h3>Downloading your data</h3>
 <p>You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the <code>data</code> folder and name it <code>path5_row68</code>.</p>
 <h2>2. Pre-processing the Peru scenes</h2>
-<p>First step of the pre-processing is to run the <code>processLandsatBatch</code> method to extract the data and apply the cloud mask which is supplied with the data.</p>
+<p>Let's first create a temporary directory which we will use to save intermediate results of the pre-processing.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r"># Create a temporary directory to store the output files.
 srdir <- dirout <- file.path(dirname(rasterTmpFile()), 'bfmspatial')
-dir.create(dirout, showWarning=FALSE)
-
-# Get the directory where the Landsat archives are stored
-list <- list.files(system.file("data/", package='bfastSpatial'), full.names=TRUE)
-
-# Run the batch line
-processLandsatBatch(x=list, vi='ndmi', outdir=dirout, srdir=srdir, delete=TRUE, mask='cfmask', keep=0, overwrite=TRUE, mc.cores = 4)</code></pre>
+dir.create(dirout, showWarning=FALSE)</code></pre>
 </div>
-<h3>Crop and mask</h3>
-<p>We are not interested in monitoring to complete area covered by the Landsat scenes. By cropping the scenes to the area of our interest we can reduce the processing time. The cropping is done based on the forestmask. This mask will also be used to mask the area of interest to identify the forest areas.</p>
+<h3>Running processLandsatBatch</h3>
+<p>Now we can use the <code>processLandsatBatch</code> method to extract the data and apply the cloud mask which is supplied with the data. We will also provide a new extent to the method to crop all Landsat scenes, since we are only interested in a small part of the entire scene. Specify the extent <code>c(580485, 617265, -1251615, -1204275))</code> as a new variable and pass this to the <code>processLandsatBatch</code> method.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">#Load the forest mask
-fmask <- raster("data/forestmask/fm_potooccupa1.tif")
+<pre style=""><code class="source r"># Create an extent variable
+newExtent <- extent(c(580485, 617265, -1251615, -1204275))
 
-#retrieve scene names to add them back to the output rasters.             
-dir <- list.files(dirout, pattern=glob2rx('*.grd'))
+# List the Landsat scenes
+inputList <- list.files(inputdata, full.names=TRUE)
 
-#Crop and mask the processed scenes and save them to disk
-for (i in 1:length(list)) {
-  scene <- raster(list[i])
-  crop_scene <- extend(crop(scene, fmask), fmask)
-  mask_scene <- mask(fmask, crop_scene)
-  
-  fname <- paste(dirout, "/fmask.", dir[i], sep = "")
-  writeRaster(mask_scene, filename = fname, datatype = "INT2S", overwrite=TRUE)
-}</code></pre>
+# Process new landsat scenes
+processLandsatBatch(x = inputList, pattern = glob2rx('*.tar.gz'), outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
+
+# List the processed NDMI scenes for stacking
+nmdiList <- list.files(dirout, pattern=glob2rx('ndmi*.grd'), full.names = TRUE)</code></pre>
 </div>
-<p>the <code>for</code> loop runs through our list of processed ndmi images, crops the extent and masks the values according to the forestmask. <code>fname</code> is used to assign the correct file names for each output scene.</p>
+<p>This can take some time depending on the size of the dataset. When the process has finished we can list the processed NDMI scenes for further processing.</p>
 <h3>Create a multi-temporal raster object</h3>
 <p>Finally we need to create a mutli-temporal raster object by adding all processed rasters to a <code>rasterbrick</code> using the <code>timeStack</code> method. First we will create a new directory where we can save the stack. Then we can load the list with the masked Landsat scenes which we will use as the input for the <code>timeStack</code>.</p>
 <div class="row">
@@ -1033,14 +1023,11 @@ for (i in 1:length(list)) {
 dirout <- file.path(dirname(rasterTmpFile()), 'stack')
 dir.create(dirout, showWarnings=FALSE)
 
-#List the masked Landsat scenes
-list <- list.files(dirout, pattern=glob2rx('fmask*.grd'), full.names = TRUE)
-
 # Generate a file name for the output stack
-stackName <- file.path(dirout, 'stack.grd')
+stackName <- file.path(outputdata, 'stackNDMI.grd')
 
 # Stack the layers
-s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)</code></pre>
+ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwrite=TRUE)</code></pre>
 </div>
 <h2>3. Spatial BFASTMonitor</h2>
 <h3>Working with pixels</h3>

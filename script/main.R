@@ -1,54 +1,106 @@
-#setting up workspace and libraries
+# setting up workspace and libraries
 library(raster)
 library(devtools)
 
-#install and load bfastspatial from github
+# install and load bfastspatial from github
 install_github('dutri001/bfastSpatial') #requires devtools
 library(bfastSpatial)
 
 
-#Set the working directory
+# Set the working directory
 projectPath <- "C:/Rony/dev/DeforestationPeru"
 inputdata <- "data/path5_row68"
 outputdata <- "output/"
 setwd(projectPath)
 
-#read csv file and retrieve scene ID's 
-csv <- read.csv(file = "data/LSR_LANDSAT_8_97722_PATH5_ROW68.csv")
-sceneID <- as.character(csv$Landsat.Scene.Identifier)
+# Read both csv files
+csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
+csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
 
-#Create a text file
+# Create a text file
 order_list <- file("output/orderlist.txt", "w")
 
-#Write the ID's in the text file line by line
+# Retrieve scene ID's from first csv file
+sceneID <- as.character(csv1$Landsat.Scene.Identifier)
+
+# Write the ID's in the text file line by line
 for(i in 1:length(sceneID)) {
   ID <- sceneID[i]
+  print(ID)
   writeLines(ID, order_list, sep="\n")
 }
-#close connection to file
+
+# Retrieve scene ID's from second csv file
+sceneID <- as.character(csv2$Landsat.Scene.Identifier)
+
+# Write the ID's in the text file line by line
+for(i in 1:length(sceneID)) { 
+  ID <- sceneID[i]
+  print(ID)
+  writeLines(ID, order_list, sep="\n")
+}  
+
+# close connection to file
 close(order_list)
 
-#Pre-processing the Landsat scenes
+
+
+
+# # # # # Pre-processing the Landsat scenes # # # #
+
 # Create a temporary directory to store the output files.
 srdir <- dirout <- file.path(dirname(rasterTmpFile()), 'bfmspatial')
 dir.create(dirout, showWarning=FALSE)
 
-# Get the directory where the Landsat archives are stored
-# list <- list.files(system.file("data/path5_row68/", package='bfastSpatial'), full.names=TRUE) For some reason not working
-list <- list.files(inputdata, full.names = TRUE)
+# Create an extent variable
+newExtent <- extent(c(580485, 617265, -1251615, -1204275))
 
-#Run the batch line
-processLandsatBatch(x=list, vi='ndmi', outdir=dirout, srdir=srdir, delete=TRUE, mask='cfmask', keep=0, overwrite=TRUE)
+# List the Landsat scenes
+inputList <- list.files(inputdata, full.names=TRUE)
 
-#Plot one of the scenes produced
-list <- list.files(dirout, pattern=glob2rx('ndmi*.grd'), full.names = TRUE)
-plot(r <- raster(list[1]))
+# Process new landsat scenes
+processLandsatBatch(x = inputList, pattern = glob2rx('*.tar.gz'), outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', 
+                    mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
 
-#Load the forest mask
-fmask <- raster("data/forestmask/fm_potooccupa1.tif")
+# List the processed NDMI scenes for stacking
+nmdiList <- list.files(dirout, pattern=glob2rx('ndmi*.grd'), full.names = TRUE)
 
-#retrieve scene names              
-dir <- list.files(dirout, pattern=glob2rx('ndmi*.grd'))
+# Generate a file name for the output stack
+stackName <- file.path(outputdata, 'stackNDMI.grd')
+
+# Stack the NDMI scenes
+ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwrite=TRUE)
+
+# Test
+#Load brick
+ndmiBrick <- brick("output/stack/stackNDMI.grd")
+
+#Plot one scene from the Brick
+plot(ndmiBrick[[1]])
+
+#Run bfmPixel 
+bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)
+
+#Plot the results
+plot(bfm$bfm)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #Crop and mask the processed scenes and save them to disk
 for (i in 1:length(list)) {
@@ -61,21 +113,4 @@ for (i in 1:length(list)) {
   writeRaster(mask_scene, filename = fname, datatype = "INT2S", overwrite=TRUE, progress ="text")
 }
 
-#List the masked Landsat scenes
-list <- list.files(dirout, pattern=glob2rx('fmask*.grd'), full.names = TRUE)
 
-# Create a new subdirectory in the temporary directory
-dirout <- file.path(dirname(rasterTmpFile()), 'stack')
-dir.create(dirout, showWarnings=FALSE)
-
-# Generate a file name for the output stack
-stackName <- file.path(outputdata, 'stack.grd')
-
-# Stack the layers
-s <- timeStack(x=list, filename=stackName, datatype='INT2S', overwrite=TRUE)
-
-plot(s, 2)
-
-bfm <- bfmPixel(s, start=c(2015, 1), interactive=TRUE)
-
-#Error: Error in xj[i, , drop = FALSE] : subscript out of bounds
