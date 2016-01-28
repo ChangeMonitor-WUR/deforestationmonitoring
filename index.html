@@ -1083,7 +1083,7 @@ plot(months, col=cols, breaks=c(1:12), legend=FALSE)
 # insert custom legend
 legend("bottomright", legend=monthlabs, cex=0.5, fill=cols, ncol=2)</code></pre>
 </div>
-<p><img src="figures/changeMonitor.PNG" alt="changemonitor" /></p>
+<p><img src="figures/changeMonitor.png" alt="changemonitor" /></p>
 <p>The second layer output by bfmSpatial is magnitude. Magnitude is computed as the median residual between expected and observed values throughout the entire monitoring period, meaning that all pixels are assigned a value regardless of whether or not a breakpoint has been detected.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
@@ -1099,7 +1099,7 @@ op <- par(mfrow=c(1, 2))
 plot(magn_bkp, main="Magnitude: breakpoints")
 plot(magn, main="Magnitude: all pixels")</code></pre>
 </div>
-<img src="figures/MagnitudeBreakpoints.PNG" alt="Magnitudebreakpoints" />
+<img src="figures/MagnitudeBreakpoints.png" alt="Magnitudebreakpoints" />
 </div>
 </div>
 </div>

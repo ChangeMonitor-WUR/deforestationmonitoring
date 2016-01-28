@@ -239,7 +239,7 @@ legend("bottomright", legend=monthlabs, cex=0.5, fill=cols, ncol=2)
 
 ```
 
-![changemonitor](figures/changeMonitor.PNG)
+![changemonitor](figures/changeMonitor.png)
 
 The second layer output by bfmSpatial is magnitude. Magnitude is computed as the median residual between expected and observed values throughout the entire monitoring period, meaning that all pixels are assigned a value regardless of whether or not a breakpoint has been detected.
 
@@ -255,5 +255,5 @@ plot(magn_bkp, main="Magnitude: breakpoints")
 plot(magn, main="Magnitude: all pixels")
 ```
 
-![Magnitudebreakpoints](figures/MagnitudeBreakpoints.PNG)
+![Magnitudebreakpoints](figures/MagnitudeBreakpoints.png)
 
