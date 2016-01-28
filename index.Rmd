@@ -21,7 +21,7 @@ In this tutorial the following change detection workflow steps will briefly disc
 3. Spatial BFASTMonitor
 
 ###Setting up the working environment
-Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the `libraries` that we will be using. If you cannot load any packages then you most probably need to install it. Use `install.packages()` to do so. Installation of the bfastspatial pacakge can be done using the `instal_github()` method.
+Start with setting up your working environment. You want to make sure that we maintain a well-structured project.. In the script below we first load the `libraries` that we will be using. If you cannot load any packages, then you most probably need to install them. Use `install.packages()` to do so. Installation of the bfastspatial package can be done using the `install_github()` method.
 
 ```{r, eval=FALSE, results='hide'}
 # Loading packages
@@ -52,7 +52,7 @@ After logging in on the Earth Explorer platform you can search the Landsat archi
 3. Setting additional criteria
 4. Exporting results
 
-For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at **path number 5** and **row number 68**. Click the **show** button after entering the desired path and row number. A marker will appear on the map and this will make sure only scenes from that area will be downloaded. Under the results there is a dropdown menu specifying the number of records to be returned. Select **500** to make sure we have enough Landsat scenes.
+For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at **path number 5** and **row number 68**. Click the **show** button after entering the desired path and row number.
 
 ![define search criteria](figures/step1.PNG)      
 
@@ -62,7 +62,7 @@ The second step is to select the data sets you wish to order under the Data Sets
 
 In step three you can select additional criteria depending on your needs. The criterion we are interested in, is the cloud cover. Setting this to **less than 80%** will filter out imagery that are completely covered by clouds and therefore unusable. 
 
-The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The scenes can be downloaded by clicking on export results. A new window will open where we can choose our desired output. Choose **CSV**. Repeat this step, but now for the scenes from the other satellite. You can choose the other satellite by clicking on the drop down menu under data sets.
+The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. Click on export results to download the scenes and choose **CSV** as output. Repeat this step also for the Landsat 7 scenes by clicking on the drop down menu under data sets.
 
 ![Choosing other dataset](figures/step3.PNG)
 
@@ -76,8 +76,8 @@ First we want to read both csv in R and retrieve the scene ID's. Also, create a 
 
 ```{r, eval=FALSE, results='hide'}
 # Read both csv files
-csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
-csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
+csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_7ETM_path5_row68.csv")
+csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_path5_row68.csv")
 
 # Create a text file
 order_list <- file("output/orderlist.txt", "w")
@@ -86,8 +86,6 @@ order_list <- file("output/orderlist.txt", "w")
 sceneID <- as.character(csv1$Landsat.Scene.Identifier)
 ```
 
-
-Remember to change the `file` argument of `read.csv()` with the `"path/filename.csv"` pointing to the location of the csv on your own computer. The same goes for the output destination of `file()`.
 
 To save each scene ID on a separate line in the text file, we will use a loop that retrieves the scene ID's and adds them one by one to the text file with `writeLines()`.
 
@@ -102,7 +100,7 @@ for(i in 1:length(sceneID)) {
 ```
 The `sep="\n"` argument creates a new line after adding the ID to the text file. 
 
-We also want to add the scene ID's from the second file. Put the scene ID's from the second file in the `sceneID` variable and run the for loop again. Add the end close the connection to the file. This will save the ID's to the text file. 
+We also want to add the scene ID's from the second csv file. Put the scene ID's from the second file in the `sceneID` variable and run the for loop again. Add the end close the connection to the file. This will save the ID's to the text file. 
 
 ```{r, eval=FALSE, results='hide'}
 # Retrieve scene ID's from second csv file
@@ -131,7 +129,7 @@ Now you can submit your order.
 
 ### Downloading your data
 
-You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the `data` folder and name it `path5_row68`. 
+You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in your data folder. 
 
 ##2. Pre-processing the Peru scenes
 
@@ -145,7 +143,7 @@ dir.create(dirout, showWarning=FALSE)
 
 ### Running processLandsatBatch
 
-Now we can use the `processLandsatBatch` method to extract the data and apply the cloud mask which is supplied with the data. We will also provide a new extent to the method to crop all Landsat scenes, since we are only interested in a small part of the entire scene. Specify the extent `c(580485, 617265, -1251615, -1204275))` as a new variable and pass this to the `processLandsatBatch` method.   
+Now we can use the `processLandsatBatch` method to extract the data and apply the cloud mask which is supplied with the data. We will also provide a new extent to the method to crop all Landsat scenes, since we are only interested in a small part of the entire scene. Specify the extent `c(580485, 617265, -1251615, -1204275))` as a new variable and pass this to the `processLandsatBatch` method.
 
 ```{r, eval=FALSE, results='hide'}
 # Create an extent variable
@@ -155,13 +153,13 @@ newExtent <- extent(c(580485, 617265, -1251615, -1204275))
 inputList <- list.files(inputdata, full.names=TRUE)
 
 # Process new landsat scenes
-processLandsatBatch(x = inputList, pattern = glob2rx('*.tar.gz'), outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
+processLandsatBatch(x = inputList, outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
 
 # List the processed NDMI scenes for stacking
 nmdiList <- list.files(dirout, pattern=glob2rx('ndmi*.grd'), full.names = TRUE)
 ```
 
-This can take some time depending on the size of the dataset. When the process has finished we can list the processed NDMI scenes for further processing.
+This can take up to several hours depending on the size of the dataset. When the process has finished we can list the processed NDMI scenes for further processing.
 
 ### Create a multi-temporal raster object
 
@@ -173,7 +171,7 @@ dirout <- file.path(dirname(rasterTmpFile()), 'stack')
 dir.create(dirout, showWarnings=FALSE)
 
 # Generate a file name for the output stack
-stackName <- file.path(outputdata, 'stackNDMI.grd')
+stackName <- file.path(outputdata, 'stackNDMI_path5_row68.grd')
 
 # Stack the layers
 ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwrite=TRUE)
@@ -191,7 +189,7 @@ plot(ndmiStack[[1]])
 
 # run bfmPixel() in interactive mode with a monitoring period 
 # starting @ the 1st day in 2015
-bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)ve=TRUE)
+bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)
 
 #Click on a pixel in the plot. 
 
@@ -201,8 +199,21 @@ plot(bfm$bfm)
 
 ![Result bfmPixel](figures/bfmPixel.PNG)
 
-Run several pixels test as discussed in [Introduction to spatialBfast tutorial](http://www.loicdutrieux.com/bfastSpatial/#Working_with_pixels__bfmPixel) to define the correct parameters
+Run several pixels test as discussed in [Introduction to spatialBfast tutorial](http://www.loicdutrieux.com/bfastSpatial/#Working_with_pixels__bfmPixel) to define the correct parameters.
 
 ### Running `bfastMonitor` over entire raster time series
 
 Now that we have done some pixel-based testing, it is time to apply bfastmonitor over an entire raster time series. This will allow us to pinpoint the location and timing of changes in our study area. Pass the arguments for the parameters which you found during pixel-based testing to the `bfmSPatial` and run it. 
+
+
+```{r, eval=FALSE, results='hide'}
+#Define output path
+out <- file.path(outputdata, "bfmSpatial.grd")
+
+#Run bfmSpatial
+bfmSpatial(infl, start = c(2014, 1), sensor = "ETM+", formula = response~harmon, order = 1, history = c(2005, 1), filename = out) 
+```
+
+This may take several hours before the results are done.
+
+### Post-Processing of BFM output

@@ -884,7 +884,7 @@ Tutorial deforestation monitoring Peru
 <li>Spatial BFASTMonitor</li>
 </ol>
 <h3>Setting up the working environment</h3>
-<p>Start with setting up your working environment. You want to make sure that we maintain a well structured project to prevent the loss or mixing up of data. In the script below we first load the <code>libraries</code> that we will be using. If you cannot load any packages then you most probably need to install it. Use <code>install.packages()</code> to do so. Installation of the bfastspatial pacakge can be done using the <code>instal_github()</code> method.</p>
+<p>Start with setting up your working environment. You want to make sure that we maintain a well-structured project.. In the script below we first load the <code>libraries</code> that we will be using. If you cannot load any packages, then you most probably need to install them. Use <code>install.packages()</code> to do so. Installation of the bfastspatial package can be done using the <code>install_github()</code> method.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -917,12 +917,12 @@ setwd(projectPath)</code></pre>
 <li>Setting additional criteria</li>
 <li>Exporting results</li>
 </ol>
-<p>For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at <strong>path number 5</strong> and <strong>row number 68</strong>. Click the <strong>show</strong> button after entering the desired path and row number. A marker will appear on the map and this will make sure only scenes from that area will be downloaded. Under the results there is a dropdown menu specifying the number of records to be returned. Select <strong>500</strong> to make sure we have enough Landsat scenes.</p>
+<p>For this tutorial we will download scenes by specifying path and row numbers under the path/row tab. We want to find all scenes at <strong>path number 5</strong> and <strong>row number 68</strong>. Click the <strong>show</strong> button after entering the desired path and row number.</p>
 <p><img src="figures/step1.PNG" alt="define search criteria" /></p>
 <p>The second step is to select the data sets you wish to order under the Data Sets tab. For this tutorial we will use <strong>Landsat Surface Reflectance - L8 OLI/TIRS</strong> and <strong>Landsat Surface Reflectance - L7 ETM+</strong> from the <strong>Landsat Archive</strong>.</p>
 <p><img src="figures/step2.PNG" alt="define search criteria" /></p>
 <p>In step three you can select additional criteria depending on your needs. The criterion we are interested in, is the cloud cover. Setting this to <strong>less than 80%</strong> will filter out imagery that are completely covered by clouds and therefore unusable.</p>
-<p>The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. The scenes can be downloaded by clicking on export results. A new window will open where we can choose our desired output. Choose <strong>CSV</strong>. Repeat this step, but now for the scenes from the other satellite. You can choose the other satellite by clicking on the drop down menu under data sets.</p>
+<p>The final step is to export your results. In the results tab you can see a list of the scenes that have been found in the archive according to your search criteria. Click on export results to download the scenes and choose <strong>CSV</strong> as output. Repeat this step also for the Landsat 7 scenes by clicking on the drop down menu under data sets.</p>
 <p><img src="figures/step3.PNG" alt="Choosing other dataset" /></p>
 <p>You will receive an email with a link where you can download the requested csv. Save the link in your data folder.</p>
 <h3>Placing order at ESPA</h3>
@@ -933,8 +933,8 @@ setwd(projectPath)</code></pre>
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r"># Read both csv files
-csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
-csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
+csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_7ETM_path5_row68.csv")
+csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_path5_row68.csv")
 
 # Create a text file
 order_list <- file("output/orderlist.txt", "w")
@@ -942,7 +942,6 @@ order_list <- file("output/orderlist.txt", "w")
 # Retrieve scene ID's from first csv file
 sceneID <- as.character(csv1$Landsat.Scene.Identifier)</code></pre>
 </div>
-<p>Remember to change the <code>file</code> argument of <code>read.csv()</code> with the <code>&quot;path/filename.csv&quot;</code> pointing to the location of the csv on your own computer. The same goes for the output destination of <code>file()</code>.</p>
 <p>To save each scene ID on a separate line in the text file, we will use a loop that retrieves the scene ID's and adds them one by one to the text file with <code>writeLines()</code>.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
@@ -956,7 +955,7 @@ for(i in 1:length(sceneID)) {
 }</code></pre>
 </div>
 <p>The <code>sep=&quot;\n&quot;</code> argument creates a new line after adding the ID to the text file.</p>
-<p>We also want to add the scene ID's from the second file. Put the scene ID's from the second file in the <code>sceneID</code> variable and run the for loop again. Add the end close the connection to the file. This will save the ID's to the text file.</p>
+<p>We also want to add the scene ID's from the second csv file. Put the scene ID's from the second file in the <code>sceneID</code> variable and run the for loop again. Add the end close the connection to the file. This will save the ID's to the text file.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -983,7 +982,7 @@ close(order_list)</code></pre>
 </ul>
 <p>Now you can submit your order.</p>
 <h3>Downloading your data</h3>
-<p>You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in a new subfolder in the <code>data</code> folder and name it <code>path5_row68</code>.</p>
+<p>You will receive an email when your order is ready for download. Use a download manager (e.g. Bulk Download Application or DownloadThemAll plugin for Firefox) to download all .tar.gz files and save them in your data folder.</p>
 <h2>2. Pre-processing the Peru scenes</h2>
 <p>Let's first create a temporary directory which we will use to save intermediate results of the pre-processing.</p>
 <div class="row">
@@ -1007,12 +1006,12 @@ newExtent <- extent(c(580485, 617265, -1251615, -1204275))
 inputList <- list.files(inputdata, full.names=TRUE)
 
 # Process new landsat scenes
-processLandsatBatch(x = inputList, pattern = glob2rx('*.tar.gz'), outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
+processLandsatBatch(x = inputList, outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
 
 # List the processed NDMI scenes for stacking
 nmdiList <- list.files(dirout, pattern=glob2rx('ndmi*.grd'), full.names = TRUE)</code></pre>
 </div>
-<p>This can take some time depending on the size of the dataset. When the process has finished we can list the processed NDMI scenes for further processing.</p>
+<p>This can take up to several hours depending on the size of the dataset. When the process has finished we can list the processed NDMI scenes for further processing.</p>
 <h3>Create a multi-temporal raster object</h3>
 <p>Finally we need to create a mutli-temporal raster object by adding all processed rasters to a <code>rasterbrick</code> using the <code>timeStack</code> method. First we will create a new directory where we can save the stack. Then we can load the list with the masked Landsat scenes which we will use as the input for the <code>timeStack</code>.</p>
 <div class="row">
@@ -1024,7 +1023,7 @@ dirout <- file.path(dirname(rasterTmpFile()), 'stack')
 dir.create(dirout, showWarnings=FALSE)
 
 # Generate a file name for the output stack
-stackName <- file.path(outputdata, 'stackNDMI.grd')
+stackName <- file.path(outputdata, 'stackNDMI_path5_row68.grd')
 
 # Stack the layers
 ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwrite=TRUE)</code></pre>
@@ -1041,7 +1040,7 @@ plot(ndmiStack[[1]])
 
 # run bfmPixel() in interactive mode with a monitoring period 
 # starting @ the 1st day in 2015
-bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)ve=TRUE)
+bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)
 
 #Click on a pixel in the plot. 
 
@@ -1049,9 +1048,17 @@ bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)ve=TRUE)
 plot(bfm$bfm)</code></pre>
 </div>
 <p><img src="figures/bfmPixel.PNG" alt="Result bfmPixel" /></p>
-<p>Run several pixels test as discussed in <a href="http://www.loicdutrieux.com/bfastSpatial/#Working_with_pixels__bfmPixel">Introduction to spatialBfast tutorial</a> to define the correct parameters</p>
+<p>Run several pixels test as discussed in <a href="http://www.loicdutrieux.com/bfastSpatial/#Working_with_pixels__bfmPixel">Introduction to spatialBfast tutorial</a> to define the correct parameters.</p>
 <h3>Running <code>bfastMonitor</code> over entire raster time series</h3>
-Now that we have done some pixel-based testing, it is time to apply bfastmonitor over an entire raster time series. This will allow us to pinpoint the location and timing of changes in our study area. Pass the arguments for the parameters which you found during pixel-based testing to the <code>bfmSPatial</code> and run it.
+<p>Now that we have done some pixel-based testing, it is time to apply bfastmonitor over an entire raster time series. This will allow us to pinpoint the location and timing of changes in our study area. Pass the arguments for the parameters which you found during pixel-based testing to the <code>bfmSPatial</code> and run it.</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">out <- file.path(outputdata, "bfmSpatial.grd")
+
+bfmSpatial(infl, start = c(2014, 1), sensor = "ETM+", formula = response~harmon, order = 1, history = c(2005, 1), filename = out) </code></pre>
+</div>
 </div>
 </div>
 </div>
