@@ -892,9 +892,6 @@ Tutorial deforestation monitoring Peru
 <pre style=""><code class="source r"># Loading packages
 library(raster)
 library(devtools)
-
-# install and load bfastspatial from github
-install_github('dutri001/bfastSpatial') #requires devtools
 library(bfastSpatial)</code></pre>
 </div>
 <p>We will set our working directory by specifying a <code>projectPath</code> which points to the folder where the project lives. We will create a <code>path5_row68</code> folder inside the <code>data</code> folder which we will use to save our initial data to. Set your working directory to the projectPath.</p>
@@ -1055,10 +1052,54 @@ plot(bfm$bfm)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">out <- file.path(outputdata, "bfmSpatial.grd")
+<pre style=""><code class="source r">#Define output path
+out <- file.path(outputdata, "bfmSpatial.grd")
 
+#Run bfmSpatial
 bfmSpatial(infl, start = c(2014, 1), sensor = "ETM+", formula = response~harmon, order = 1, history = c(2005, 1), filename = out) </code></pre>
 </div>
+<p>This may take several hours before the results are done.</p>
+<h3>Post-Processing of BFM output</h3>
+<p>The output of bfmSpatial is a simple rasterBrick. Individual layers can be extracted as with any rasterBrick object. As noted above, the first layer is the breakpoint timing. We will first convert the breakpoint values to change months using the <code>changeMonth</code> method.</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">#load the bfm
+bfm <- brick("output/bfmSpatial/bfmSpatial_path5_row68.grd")
+
+#extract change raster
+change <- raster(bfm, 1)
+
+#convert breakpoint values to change months
+months <- changeMonth(change)
+
+# set up labels and colourmap for months
+monthlabs <- c("jan", "feb", "mar", "apr", "may", "jun", 
+               "jul", "aug", "sep", "oct", "nov", "dec")
+cols <- rainbow(12)
+plot(months, col=cols, breaks=c(1:12), legend=FALSE)
+
+# insert custom legend
+legend("bottomright", legend=monthlabs, cex=0.5, fill=cols, ncol=2)</code></pre>
+</div>
+<p><img src="figures/changeMonitor.PNG" alt="changemonitor" /></p>
+<p>The second layer output by bfmSpatial is magnitude. Magnitude is computed as the median residual between expected and observed values throughout the entire monitoring period, meaning that all pixels are assigned a value regardless of whether or not a breakpoint has been detected.</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r"># extract magn raster
+magn <- raster(bfm, 2)
+
+# make a version showing only breakpoing pixels
+magn_bkp <- magn
+magn_bkp[is.na(change)] <- NA
+op <- par(mfrow=c(1, 2))
+plot(magn_bkp, main="Magnitude: breakpoints")
+plot(magn, main="Magnitude: all pixels")</code></pre>
+</div>
+<img src="figures/MagnitudeBreakpoints.PNG" alt="changemonitor" />
 </div>
 </div>
 </div>

@@ -13,6 +13,8 @@ inputdata <- "data/path5_row68"
 outputdata <- "output/"
 setwd(projectPath)
 
+# # # # # Scene ID extraction # # # #
+
 # Read both csv files
 csv1 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_8_98327.csv")
 csv2 <- read.csv(file = "data/Orderlist/path5_row68/LSR_LANDSAT_ETM_COMBINED_98328.csv")
@@ -44,8 +46,6 @@ for(i in 1:length(sceneID)) {
 close(order_list)
 
 
-
-
 # # # # # Pre-processing the Landsat scenes # # # #
 
 # Create a temporary directory to store the output files.
@@ -59,30 +59,74 @@ newExtent <- extent(c(580485, 617265, -1251615, -1204275))
 inputList <- list.files(inputdata, full.names=TRUE)
 
 # Process new landsat scenes
-processLandsatBatch(x = inputList, pattern = glob2rx('*.tar.gz'), outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', 
+processLandsatBatch(x = inputList, outdir = dirout, srdir = srdirNDMI, delete = TRUE, vi = 'ndmi', 
                     mask = 'cfmask', keep = 0, e = newExtent, overwrite = TRUE)
 
 # List the processed NDMI scenes for stacking
 nmdiList <- list.files(dirout, pattern=glob2rx('ndmi*.grd'), full.names = TRUE)
 
 # Generate a file name for the output stack
-stackName <- file.path(outputdata, 'stackNDMI.grd')
+stackName <- file.path(outputdata, 'stackNDMI_path5_row68.grd')
 
 # Stack the NDMI scenes
 ndmiStack <- timeStack(x=ndmiList, filename=stackName, datatype='INT2S', overwrite=TRUE)
 
-# Test
+#Plot the results
+plot(bfm$bfm)
+
+# # # # # Exploring brick with bfmPixel # # # #
+
 #Load brick
 ndmiBrick <- brick("output/stack/stackNDMI.grd")
 
 #Plot one scene from the Brick
 plot(ndmiBrick[[1]])
 
-#Run bfmPixel 
-bfm <- bfmPixel(ndmiBrick, start=c(2015,1), interactive=TRUE)
+# run bfmPixel() in interactive mode with a monitoring period 
+# starting @ the 1st day in 2015
+bfm <- bfmPixel(ndmiBrick, start=c(2014,1), sensor = "ETM+", formula = response~harmon, order = 1, history = c(2005, 1),  interactive=TRUE)
+
+#Click on a pixel in the plot. 
 
 #Plot the results
 plot(bfm$bfm)
+
+# # # # # Run bfmSpatial on # # # #
+
+out <- file.path(outputdata, "bfmSpatial.grd")
+
+bfmSpatial(infl, start = c(2014, 1), sensor = "ETM+", formula = response~harmon, order = 1, history = c(2005, 1), filename = out) 
+
+
+# # # # # Post processing # # # #
+#load the bfm
+bfm <- brick("output/bfmSpatial/bfmSpatial_path5_row68.grd")
+
+#extract change raster
+change <- raster(bfm, 1)
+
+#convert breakpoint values to change months
+months <- changeMonth(change)
+
+# set up labels and colourmap for months
+monthlabs <- c("jan", "feb", "mar", "apr", "may", "jun", 
+               "jul", "aug", "sep", "oct", "nov", "dec")
+cols <- rainbow(12)
+plot(months, col=cols, breaks=c(1:12), legend=FALSE)
+
+# insert custom legend
+legend("bottomright", legend=monthlabs, cex=0.5, fill=cols, ncol=2)
+
+# extract magn raster
+magn <- raster(bfm, 2)
+
+# make a version showing only breakpoing pixels
+magn_bkp <- magn
+magn_bkp[is.na(change)] <- NA
+op <- par(mfrow=c(1, 2))
+plot(magn_bkp, main="Magnitude: breakpoints")
+plot(magn, main="Magnitude: all pixels")
+
 
 
 

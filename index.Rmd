@@ -27,9 +27,6 @@ Start with setting up your working environment. You want to make sure that we ma
 # Loading packages
 library(raster)
 library(devtools)
-
-# install and load bfastspatial from github
-install_github('dutri001/bfastSpatial') #requires devtools
 library(bfastSpatial)
 ```
 We will set our working directory by specifying a `projectPath` which points to the folder where the project lives. We will create a `path5_row68` folder inside the `data` folder which we will use to save our initial data to. Set your working directory to the projectPath.
@@ -217,3 +214,46 @@ bfmSpatial(infl, start = c(2014, 1), sensor = "ETM+", formula = response~harmon,
 This may take several hours before the results are done.
 
 ### Post-Processing of BFM output
+
+The output of bfmSpatial is a simple rasterBrick. Individual layers can be extracted as with any rasterBrick object. As noted above, the first layer is the breakpoint timing. We will first convert the breakpoint values to change months using the `changeMonth` method.
+
+
+```{r, eval=FALSE}
+#load the bfm
+bfm <- brick("output/bfmSpatial/bfmSpatial_path5_row68.grd")
+
+#extract change raster
+change <- raster(bfm, 1)
+
+#convert breakpoint values to change months
+months <- changeMonth(change)
+
+# set up labels and colourmap for months
+monthlabs <- c("jan", "feb", "mar", "apr", "may", "jun", 
+               "jul", "aug", "sep", "oct", "nov", "dec")
+cols <- rainbow(12)
+plot(months, col=cols, breaks=c(1:12), legend=FALSE)
+
+# insert custom legend
+legend("bottomright", legend=monthlabs, cex=0.5, fill=cols, ncol=2)
+
+```
+
+![changemonitor](figures/changeMonitor.PNG)
+
+The second layer output by bfmSpatial is magnitude. Magnitude is computed as the median residual between expected and observed values throughout the entire monitoring period, meaning that all pixels are assigned a value regardless of whether or not a breakpoint has been detected.
+
+```{r, eval=FALSE}
+# extract magn raster
+magn <- raster(bfm, 2)
+
+# make a version showing only breakpoing pixels
+magn_bkp <- magn
+magn_bkp[is.na(change)] <- NA
+op <- par(mfrow=c(1, 2))
+plot(magn_bkp, main="Magnitude: breakpoints")
+plot(magn, main="Magnitude: all pixels")
+```
+
+![changemonitor](figures/MagnitudeBreakpoints.PNG)
+
