@@ -1,0 +1,25 @@
+[general]
+creator=R package 'raster'
+created=2016-01-28 15:08:26
+[georeference]
+nrows=1578
+ncols=1216
+xmin=580785
+ymin=-1251615
+xmax=617265
+ymax=-1204275
+projection=+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0
+[data]
+datatype=FLT4S
+byteorder=little
+nbands=3
+bandorder=BIL
+minvalue=2013.67945205479:-29622.2415944977:1
+maxvalue=2015.80547945205:13212.5417875612:1
+nodatavalue=-3.4e+38
+[legend]
+legendtype=
+values=
+color=
+[description]
+layername=layer.1:layer.2:layer.3
