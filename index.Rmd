@@ -255,5 +255,5 @@ plot(magn_bkp, main="Magnitude: breakpoints")
 plot(magn, main="Magnitude: all pixels")
 ```
 
-![changemonitor](figures/MagnitudeBreakpoints.PNG)
+![Magnitudebreakpoints](figures/MagnitudeBreakpoints.PNG)
 

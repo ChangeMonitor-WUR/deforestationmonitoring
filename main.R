@@ -126,35 +126,3 @@ magn_bkp[is.na(change)] <- NA
 op <- par(mfrow=c(1, 2))
 plot(magn_bkp, main="Magnitude: breakpoints")
 plot(magn, main="Magnitude: all pixels")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Crop and mask the processed scenes and save them to disk
-for (i in 1:length(list)) {
-  scene <- raster(list[i])
-  crop_scene <- extend(crop(scene, fmask), fmask)
-  mask_scene <- mask(fmask, crop_scene)
-  
-  fname <- paste(dirout, "/fmask.", dir[i], sep = "")
-  print(fname)
-  writeRaster(mask_scene, filename = fname, datatype = "INT2S", overwrite=TRUE, progress ="text")
-}
-
-
